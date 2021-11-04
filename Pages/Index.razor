@@ -1,0 +1,16 @@
+﻿@page "/"
+
+<PageTitle>Index</PageTitle>
+
+<div class="jumbotron">
+    <h1>Blazor Client-Side Graph App</h1>
+    <AuthorizeView>
+        <Authorized>
+            <h4>Welcome @context?.User?.Identity?.Name!</h4>
+            <p>Use the navigation bar on the left to get started.</p>
+        </Authorized>
+        <NotAuthorized>
+            <a class="btn btn-primary btn-large" href="authentication/login">Click here to sign in</a>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
