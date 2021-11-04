@@ -15,31 +15,27 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-public class Program
+
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<HeadOutlet>("head::after");
+
+builder.Services.AddSingleton<MSGraphClientFactory>();
+builder.Services.AddSingleton<GraphAPIAuthorizationMessageHandler>();
+builder.Services.AddHttpClient("GraphAPI", client => client.BaseAddress = new Uri("https://graph.microsoft.com")).AddHttpMessageHandler<GraphAPIAuthorizationMessageHandler>();
+
+
+builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+builder.Services.AddMsalAuthentication(options =>
 {
-    public static async Task Main(string[] args)
-    {
-        var builder = WebAssemblyHostBuilder.CreateDefault(args);
-        builder.RootComponents.Add<App>("#app");
-        //builder.RootComponents.Add<HeadOutlet>("head::after");
+    builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
+    options.ProviderOptions.DefaultAccessTokenScopes.Add("User.Read");
+    options.ProviderOptions.DefaultAccessTokenScopes.Add("Mail.Read");
+});
 
-        builder.Services.AddSingleton<MSGraphClientFactory>();
-        builder.Services.AddSingleton<GraphAPIAuthorizationMessageHandler>();
-        builder.Services.AddHttpClient("GraphAPI", client => client.BaseAddress = new Uri("https://graph.microsoft.com")).AddHttpMessageHandler<GraphAPIAuthorizationMessageHandler>();
+await builder.Build().RunAsync();
 
 
-        builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-        builder.Services.AddMsalAuthentication(options =>
-        {
-            builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-            options.ProviderOptions.DefaultAccessTokenScopes.Add("User.Read");
-            options.ProviderOptions.DefaultAccessTokenScopes.Add("Mail.Read");
-        });
-
-        await builder.Build().RunAsync();
-
-    }
-}
-        
 
